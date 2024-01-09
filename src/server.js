@@ -8,11 +8,15 @@ import {APIs_V1} from '~/routes/v1'
 const START_SERVER = () => {
   const app = express();
 
+  //enable req.body jsondata
+  app.use(express.json())
+  
+  //use api v1
   app.use('/v1', APIs_V1)
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {
     // eslint-disable-next-line no-console
-    console.log(`3. Hello ${env.AUTHOR}, Back-end Server is running successfully at Host: ${env.APP_HOST} and Port: ${env.APP_PORT}`);
+    console.log(`3. Hello ${env.AUTHOR}, Back-end Server is running successfully at: http://${env.APP_HOST}:${env.APP_PORT}`);
   });
   exitHook(() => {
     console.log(`4. Disconnecting from  MongoDB Cloud Atlas`);
