@@ -1,3 +1,8 @@
+/**
+ * Simple method to Convert a String to Slug
+ tham khảo thêm kiến thức liên quan ở đây: https://byby.dev/js-slugify-string
+ */
+
 export const slugify = (val) => {
   if (!val) return "";
   return String(val)
@@ -10,17 +15,4 @@ export const slugify = (val) => {
     .replace(/-+/g, "-"); // remove consecutive hyphens
 };
 
-/**
- * Example:
- */
-const originalStringTest = "TrungQuanDev Một Lập Trình Viên";
-const slug = slugify(originalStringTest);
 
-console.log("originalStringTest:", originalStringTest);
-console.log("slug:", slug);
-/**
- * Results:
- *
- * Original String Test: 'TrungQuanDev Một Lập Trình Viên'
- * Slug Result: trungquandev-mot-lap-trinh-vien
- */

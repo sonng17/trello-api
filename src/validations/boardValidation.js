@@ -1,6 +1,7 @@
 import Joi from "joi";
 import { StatusCodes } from "http-status-codes";
 import ApiError from "~/utils/ApiError";
+
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict().messages({
@@ -14,15 +15,12 @@ const createNew = async (req, res, next) => {
   });
 
   try {
-    console.log("req.body: ", req.body);
     // Set abortEarly: false de truowng hop cos nhieu loi validation thi tra ve tat ca loi
     await correctCondition.validateAsync(req.body, { abortEarly: false });
     // validate du lieu xong thi cho request di tiep sang Controller
     next();
   } catch (error) {
-    next(
-      new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)
-    );
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
   }
 };
 
