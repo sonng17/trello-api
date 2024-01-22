@@ -13,10 +13,10 @@ const createNew = async (reqBody) => {
 
     if (getNewColumn) {
       //xu ly cau truc data trc khi tra du lieu ve
-      getNewColumn.cards = []
+      getNewColumn.cards = [];
 
       //cap nhat mang columnOrderIds trong collection board
-      await boardModel.pushColumnOrderIds(getNewColumn)
+      await boardModel.pushColumnOrderIds(getNewColumn);
     }
 
     return getNewColumn;
@@ -25,6 +25,21 @@ const createNew = async (reqBody) => {
   }
 };
 
+const update = async (columnId, reqBody) => {
+  try {
+    const updateData = {
+      ...reqBody,
+      updatedAt: Date.now(),
+    };
+    const updatedColumn = await columnModel.update(columnId, updateData);
+
+    return updatedColumn;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const columnService = {
   createNew,
+  update,
 };

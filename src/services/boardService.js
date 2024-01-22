@@ -2,6 +2,8 @@
 import { StatusCodes } from "http-status-codes";
 import { cloneDeep } from "lodash";
 import { boardModel } from "~/models/boardModel";
+import { cardModel } from "~/models/cardModel";
+import { columnModel } from "~/models/columnModel";
 import ApiError from "~/utils/ApiError";
 import { slugify } from "~/utils/formatters";
 
@@ -44,6 +46,9 @@ const getDetails = async (boardId) => {
       column.cards = resBoard.cards.filter(
         (card) => card.columnId.toString() === column._id.toString()
       );
+      // column.cards = resBoard.cards.filter(
+      //   (card) => card.columnId.toString() === column._id.toString()
+      // );
     });
 
     // b3: xoa mang card khoi board ban dau
@@ -60,7 +65,6 @@ const update = async (boardId, reqBody) => {
     const updateData = {
       ...reqBody,
       updatedAt: Date.now(),
-    
     };
     const updatedBoard = await boardModel.update(boardId, updateData);
 
@@ -70,8 +74,31 @@ const update = async (boardId, reqBody) => {
   }
 };
 
+const moveCardToDifferentColumn = async (reqBody) => {
+  try {
+    await columnModel.update(reqBody.prevColumnId, {
+      cardOrderIds: reqBody.prevCardOrderIds,
+      updatedAt: Date.now(),
+    });
+
+    await columnModel.update(reqBody.nextColumnId, {
+      cardOrderIds: reqBody.nextCardOrderIds,
+      updatedAt: Date.now(),
+    });
+
+    await cardModel.update(reqBody.currentCardId, {
+      columnId: reqBody.nextColumnId,
+    });
+
+    return { updateResult: "Successfully !" };
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const boardService = {
   createNew,
   getDetails,
   update,
+  moveCardToDifferentColumn,
 };
