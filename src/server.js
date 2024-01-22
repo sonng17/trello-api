@@ -5,9 +5,14 @@ import { CONNECT_DB, CLOSE_DB } from "~/config/mongodb";
 import {env} from '~/config/environment'
 import {APIs_V1} from '~/routes/v1'
 import { errorHandlingMiddleware } from "./middlewares/errorHandlingMiddleware";
+import cors from 'cors'
+import { corsOptions } from "./config/cors";
 
 const START_SERVER = () => {
   const app = express();
+
+  // Xử lý CORS
+  app.use(cors(corsOptions))
 
   //enable req.body jsondata
   app.use(express.json())

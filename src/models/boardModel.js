@@ -1,7 +1,10 @@
 import Joi from "joi";
 import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
+import { BOARD_TYPES } from "~/utils/constants";
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from "~/utils/validators";
+import { columnModel } from "./columnModel";
+import { cardModel } from "./cardModel";
 
 //Define Collection (Name & Schema)
 // Collection tương tự table trong sql
@@ -11,6 +14,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   slug: Joi.string().required().min(3).trim().strict(),
   description: Joi.string().required().min(3).max(256).trim().strict(),
 
+  type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
+
   columnOrderIds: Joi.array()
     .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
     .default([]),
@@ -18,6 +23,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp("javascript").default(null),
   _destroy: Joi.boolean().default(false),
 });
+
+const INVALID_UPDATE_FIELDS = ["_id", "createdAt"];
 
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, {
@@ -51,9 +58,98 @@ const findOneById = async (id) => {
   }
 };
 
+const getDetails = async (id) => {
+  try {
+    // const result = await GET_DB()
+    //   .collection(BOARD_COLLECTION_NAME)
+    //   .findOne({
+    //     _id: new ObjectId(id),
+    //   });
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(id),
+            _destroy: false,
+          },
+        },
+        {
+          $lookup: {
+            from: columnModel.COLUMN_COLLECTION_NAME,
+            localField: "_id",
+            foreignField: "boardId",
+            as: "columns",
+          },
+        },
+        {
+          $lookup: {
+            from: cardModel.CARD_COLLECTION_NAME,
+            localField: "_id",
+            foreignField: "boardId",
+            as: "cards",
+          },
+        },
+      ])
+      .toArray();
+    return result[0] || null;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+//Nhiem vu cuar func nay la push 1 gia trij columnId vao cuoi mang ColumnOrderIds
+const pushColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(column.boardId) },
+        {
+          $push: { columnOrderIds: new ObjectId(column._id) },
+        },
+        { returnDocument: "after" }
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const update = async (boardId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((fieldName) => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData(fieldName);
+      }
+    });
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(boardId) },
+        {
+          $set: updateData,
+        },
+        { returnDocument: "after" }
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
+  getDetails,
+  pushColumnOrderIds,
+  update,
 };
+
+// boardID: 65a898cdee7dd25b718660cd
+// columnId: 65a89d7b77176325c2f976e7
+// cardId: 65a89e4577176325c2f976e9
