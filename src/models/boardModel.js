@@ -13,9 +13,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
   slug: Joi.string().required().min(3).trim().strict(),
   description: Joi.string().required().min(3).max(256).trim().strict(),
-
   type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
-
   columnOrderIds: Joi.array()
     .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
     .default([]),
@@ -176,6 +174,3 @@ export const boardModel = {
   pullColumnOrderIds,
 };
 
-// boardID: 65a898cdee7dd25b718660cd
-// columnId: 65a89d7b77176325c2f976e7
-// cardId: 65a89e4577176325c2f976e9

@@ -59,12 +59,3 @@ const START_SERVER = () => {
   }
 })();
 
-//Chi khi ket noi toi db thanh cong thi moi start server back-end len
-// console.log('1. Connecting to MongoDB Cloud Atlas...');
-// CONNECT_DB()
-//   .then(()=> {console.log('2. Connected to MongoDB Cloud Atlas!');})
-//   .then(() => START_SERVER())
-//   .catch(error => {
-//     console.log(error);
-//     process.exit(0)
-//   });

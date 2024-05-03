@@ -10,9 +10,12 @@ Router.route("/")
     res.status(StatusCodes.OK).json({ message: "GET:API get list boards" });
   })
   .post(boardValidation.createNew, boardController.createNew);
-
-Router.route("/:id").get(boardController.getDetails).put(boardValidation.update, boardController.update); // update
-Router.route('/supports/moving_card')
-.put(boardValidation.moveCardToDifferentColumn, boardController.moveCardToDifferentColumn)
+Router.route("/:id")
+  .get(boardController.getDetails)
+  .put(boardValidation.update, boardController.update); // update
+Router.route("/supports/moving_card").put(
+  boardValidation.moveCardToDifferentColumn,
+  boardController.moveCardToDifferentColumn
+);
 
 export const boardRoute = Router;
